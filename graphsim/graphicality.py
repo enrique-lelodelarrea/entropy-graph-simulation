@@ -16,13 +16,13 @@ functions of the NetworkX library.
 import numpy as np
 
 def sequence_is_even(deg_seq):
-    ''' Checks if the elements of the degree sequence deg_seq
+    ''' Check if the elements of the degree sequence deg_seq
     add up to an even number. '''
     sum_deg = np.sum(deg_seq)
     return (sum_deg%2 == 0)
 
 def order_seq_descending(deg_seq):
-    ''' Orders a degree sequence in descending order.
+    ''' Order a degree sequence in descending order.
     Ordering is done in place. '''
     deg_seq[::-1].sort() # interesting behavior of numpy views
     return None
@@ -72,22 +72,34 @@ def erdos_gallai_vec(deg_seq):
 
 if __name__ == '__main__':
     
+    import networkx as nx
+    
     seq1 = np.array([4, 5, 6, 7, 2], dtype=int)
     seq2 = np.array([], dtype=int) # Empty graph
     seq3 = np.array([3, 2, 2, 2, 1], dtype=int) # B and D example 
     seq4 = np.array([7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,7,6,
-                     1,2,9,6,1,3,4,6,3,3,3,2,4,4])
+                     1,2,9,6,1,3,4,6,3,3,3,2,4,4], dtype=int)
     
     # test Erdos-Gallai
+    print('Naive implementation (loops)')
     print(erdos_gallai(seq1))
     print(erdos_gallai(seq2))
     print(erdos_gallai(seq3))
     print(erdos_gallai(seq4))
-    print('')
+    print('Naive implementation (vectorized)')
     print(erdos_gallai_vec(seq1))
     print(erdos_gallai_vec(seq2))
     print(erdos_gallai_vec(seq3))
     print(erdos_gallai_vec(seq4))
+    print('Networkx implementation O(n)')
+    print(nx.is_graphical(seq1))
+    print(nx.is_graphical(seq2))
+    print(nx.is_graphical(seq3))
+    print(nx.is_graphical(seq4))
+    
+    # naive vectorized on seq4: 63.5 microsecs
+    
+    # networkx vectorized on seq4: 59.8 microsecs
     
     
     

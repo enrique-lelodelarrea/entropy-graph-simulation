@@ -13,6 +13,7 @@ import sys
 import logging
 import numpy as np
 import networkx as nx
+from itertools import combinations
 from max_ent_binary_case import discrete_max_entr_dual, exp_value_exponential
 from aux_functions import lambda_to_eta, sat_linear_constraints, next_coordinate
 
@@ -312,7 +313,6 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
         next_i, orig_i = next_coordinate(remain_coord, rule=rule, eta_vec=eta)
         logger.info('Next simulated edge will be %s, with current index %s' % (orig_i, next_i))
         logger.info('Edge has parameter eta = %g' % eta[next_i])
-        # TODO: add the oracle
         logger.info('Simulating edge...')
         if True: # no feasibility oracle is required
             # draw a sample for the selected coordinate
@@ -321,6 +321,7 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
             tau_vec = np.array([1, 1])
         else:
             pass
+            # TODO: add the oracle (not as easy as I thought)
 #            tau_vec = np.array([0, 0])
 #            for j in range(2):
 #                feas_oracle = False
@@ -359,8 +360,46 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
         raise ValueError('Output x does not satisfy the degree constraints!')
     return x, pi_x, tau_x, chi_x
 
+def vector2graph(x, num_nodes):
+    '''
+    
+    Transform a vector of edge indicators into a networkx
+    graph instance.
+    
+    Parameters
+    ----------
+    x: vector of edge indicators
+    num_nodes: number of nodes in the graph
+    
+    Returns
+    -------
+    graph: graph object
+    
+    '''
+    num_total_edges = num_nodes*(num_nodes - 1)//2
+    assert len(x) == num_total_edges
+    graph = nx.Graph()
+    # add nodes
+    nodes = [(i+1) for i in range(num_nodes)]
+    graph.add_nodes_from(nodes)
+    # add edges
+    all_edges = list(combinations(nodes, 2))
+    edges = [all_edges[i] for i in range(num_total_edges) if x[i] == 1]
+    graph.add_edges_from(edges)
+    return graph
+
 if __name__ == '__main__':
     
     # sample from a simple sequence
     d_seq = [3, 2, 2, 2, 1]
-    g = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
+    x, p, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
+    print(x) 
+    g = vector2graph(x, len(d_seq))
+    
+    # sample from chesapeake
+    d_seq = [7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,
+             7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
+    x, p, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
+    print(x)
+    g = vector2graph(x, len(d_seq))
+    

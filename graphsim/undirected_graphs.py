@@ -14,8 +14,9 @@ import logging
 import numpy as np
 import networkx as nx
 from itertools import combinations
-from max_ent_binary_case import discrete_max_entr_dual, exp_value_exponential
-from aux_functions import lambda_to_eta, sat_linear_constraints, next_coordinate
+
+from .max_ent_binary_case import discrete_max_entr_dual, exp_value_exponential
+from .aux_functions import lambda_to_eta, sat_linear_constraints, next_coordinate
 
 CRITICAL_ETA_TOL = 1e-6
 
@@ -230,6 +231,8 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
     equal to the actual probability in the binary case
     tau_x: real, factor such that tau_x*pi_x is an unbiased estimator of p_x
     chi_x: real, factor such that chi_x/pi_x is an unbaised estimator of 1/p_x
+    p: numeric, estimator of p_x, where p_x is the probability of observing x
+    w: numeric, estimator of 1/p_x
     
     '''
     
@@ -356,9 +359,15 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
     logger.info('All edges have been simulated. Checking for correctness...')
     if not sat_linear_constraints(x, inc_matrix, deg_seq):
         logger.error('Output x does not satisfy the degree constraints!')
-        # allow to continue, even if this sim failed
-        raise ValueError('Output x does not satisfy the degree constraints!')
-    return x, pi_x, tau_x, chi_x
+        sys.exit()
+        # allow to continue
+#        raise ValueError('Output x does not satisfy the degree constraints!')
+    else:
+        logger.info('Output x is correct')
+    # probability estimator and IS weight estimator
+    p = tau_x*pi_x
+    w = chi_x/pi_x
+    return x, p, w
 
 def vector2graph(x, num_nodes):
     '''
@@ -390,16 +399,5 @@ def vector2graph(x, num_nodes):
 
 if __name__ == '__main__':
     
-    # sample from a simple sequence
-    d_seq = [3, 2, 2, 2, 1]
-    x, p, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
-    print(x) 
-    g = vector2graph(x, len(d_seq))
-    
-    # sample from chesapeake
-    d_seq = [7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,
-             7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
-    x, p, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
-    print(x)
-    g = vector2graph(x, len(d_seq))
+    pass
     

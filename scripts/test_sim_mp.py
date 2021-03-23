@@ -13,11 +13,13 @@ if __name__ == '__main__':
     import sys
     import os
     import logging
+    import time
     # add parent directory to path
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
     
     import graphsim.logger as logs
     from graphsim.undirected_batch_mp import sim_undirected_graphs_mp
+    from graphsim.aux_functions import print_elapsed_time
     
     log_level = logging.getLevelName('WARNING')
     logger = logs.create_logger_w_c_handler('graphsim',
@@ -29,7 +31,8 @@ if __name__ == '__main__':
     
     print('Running samples in parallel...')
     
-    # run sample
+    # run simulation
+    start_time = time.time()
     sim_undirected_graphs_mp(deg_seq = degrees,
                              num_sims_batch = 10,
                              num_procs = 4,
@@ -39,6 +42,8 @@ if __name__ == '__main__':
                              subfolder = 'test_mp',
                              solver = 'cvxpy',
                              num_cores = 3)
+    end_time = time.time()
+    print_elapsed_time(start_time, end_time)
     
     # close handlers at the end
     logs.close_handlers(logger)

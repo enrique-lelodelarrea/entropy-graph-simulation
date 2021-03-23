@@ -19,8 +19,8 @@ if __name__ == '__main__':
     
     # test 1 max entropy    
     # test dual optimization
-    chesapeake = np.array([7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,7,6,
-                           1,2,9,6,1,3,4,6,3,3,3,2,4,4])
+    chesapeake = [7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,
+                  7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
     inc_mat = graph_matrix(len(chesapeake))
     print('Testing cvxpy on chesapeake degree sequence...')
     l_star_1 = discrete_max_entr_dual(A=inc_mat, b=chesapeake, method='cvxpy')

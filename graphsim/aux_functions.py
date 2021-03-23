@@ -9,6 +9,49 @@ Created on Thu Mar 18 11:19:19 2021
 ''' Auxiliary functions. '''
 
 import numpy as np
+import sys
+import logging
+
+# module logger
+logger = logging.getLogger(__name__)
+
+def format_seconds(seconds):
+    ''' 
+    
+    Format seconds into a readable string.
+    
+    Parameters
+    ----------
+    seconds: float, a number of seconds
+    
+    Returns
+    -------
+    time_str: string, seconds in format hour:min:secs
+    
+    '''
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    time_str = '{:d}:{:02d}:{:02d}'.format(int(h), int(m), int(s))
+    return time_str
+
+def print_elapsed_time(start_time, end_time):
+    ''' 
+    
+    Print elapsed time to the terminal.
+    
+    Parameters
+    ----------
+    start_time: float, initial time (seconds since epoch)
+    end_time: float, final time (seconds since epoch)
+    
+    Returns
+    -------
+    None
+    
+    '''
+    t_str = format_seconds(end_time - start_time)
+    print('Elapsed time was: %s' % t_str)
+    return None
 
 def lambda_to_eta(lbda, A):
     ''' 
@@ -81,6 +124,7 @@ def next_coordinate(list_coordinates, rule='fixed', eta_vec=None):
         # select the entry with the largest eta value in absolute value
         next_i = np.argmax(np.abs(eta_vec))
     else:
-        raise ValueError("Value of rule is not one of: 'fixed', 'random', 'most_uniform', or 'most_singular'!")
+        logger.error("Value of rule is not one of: 'fixed', 'random', 'most_uniform', or 'most_singular'!")
+        sys.exit()
     orig_i = list_coordinates[next_i] 
     return next_i, orig_i

@@ -35,17 +35,20 @@ if __name__ == '__main__':
     
     
     # test 2 sampling
-    
+    print('Sampling from a simple degree sequence...')
     # sample from a simple sequence
     d_seq = [3, 2, 2, 2, 1]
     x, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
     print(x) 
     g = vector2graph(x, len(d_seq))
+    print(g.edges)
     
     # sample from chesapeake
+    print('Sampling from the Chesapeake sequence...')
     d_seq = [7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,
              7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
     x, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
     print(x)
     g = vector2graph(x, len(d_seq))
+    print(g.edges)
     

@@ -276,7 +276,12 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
             break  
         # solve the max entropy problem
         logger.info('Solving the max entropy problem...')
-        lbda = discrete_max_entr_dual(A, b, dual_method)
+        try:
+            lbda = discrete_max_entr_dual(A, b, dual_method)
+        except Exception as e:
+            logger.error(e)
+            logger.error('Failed to solve the dual problem!')
+            raise ValueError('Failed to solve the dual problem!')
         # compute exponential family parameters
         eta = lambda_to_eta(lbda, A)
         logger.debug('Eta star =')

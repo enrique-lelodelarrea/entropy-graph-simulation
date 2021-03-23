@@ -66,9 +66,9 @@ def sim_batch_proc(deg_seq, num_sims, rule, prefix_file, random_seed, subfolder,
     # create directory and file name
     outfile = '%s_proc_id_%s_%s_n_%d.npz' % (prefix_file, proc_id, rule, num_sims)
     if subfolder is not None:
-        pathlib.Path('../sims/', subfolder).mkdir(parents=False, exist_ok=True)
-        folder = os.path.join('../sims', subfolder)
-        outfile = os.path.join(folder, outfile)
+        folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sims')) 
+        pathlib.Path(folder, subfolder).mkdir(parents=False, exist_ok=True)
+        outfile = os.path.join(folder, subfolder, outfile)
     else:
         pass # save files in the same current folder
     # save data    

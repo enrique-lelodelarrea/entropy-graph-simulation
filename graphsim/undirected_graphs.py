@@ -114,7 +114,7 @@ def remove_constraints(A, b):
     logger.info('Removing %d constraints...' % n_constraints)
     if np.any(b[A_zero_mask]):
         logger.error('Infeasible constraint found!')
-        sys.exit()
+        raise ValueError('Infeasible constraint found!')
     if n_constraints == m:
         trivial_status = True
     # update constraints
@@ -243,7 +243,7 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
     assert num_nodes > 1 # at least two nodes
     # order the degree sequence and check if it's graphical
     if not nx.is_graphical(deg_seq):
-        logger.error('Initial degree sequence is not graphical!')
+        logger.critical('Initial degree sequence is not graphical!')
         sys.exit()
     # compute graph incidence matrix
     inc_matrix = graph_matrix(num_nodes)
@@ -359,9 +359,8 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
     logger.info('All edges have been simulated. Checking for correctness...')
     if not sat_linear_constraints(x, inc_matrix, deg_seq):
         logger.error('Output x does not satisfy the degree constraints!')
-        sys.exit()
         # allow to continue
-#        raise ValueError('Output x does not satisfy the degree constraints!')
+        raise ValueError('Output x does not satisfy the degree constraints!')
     else:
         logger.info('Output x is correct')
     # probability estimator and IS weight estimator

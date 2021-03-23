@@ -27,19 +27,23 @@ if __name__ == '__main__':
     # simulation setting
     degrees = [3, 2, 2, 2, 1]
     
+    print('Running samples in parallel...')
+    
     # run sample
     sim_undirected_graphs_mp(deg_seq = degrees,
                              num_sims_batch = 10,
-                             num_procs = 1,
-                             rule = 'fixed',
-                             prefix_file = 't_sim',
-                             random_seed = 123,
-                             run_name = 'test',
+                             num_procs = 4,
+                             rules = ['fixed', 'random', 'most_uniform', 'most_singular'],
+                             prefix_file = 'testing',
+                             random_seed = 12345,
+                             subfolder = 'test_mp',
                              solver = 'cvxpy',
-                             all_cores = False)
+                             num_cores = 3)
     
     # close handlers at the end
     logs.close_handlers(logger)
+    
+    print('Done!')
     
     
     

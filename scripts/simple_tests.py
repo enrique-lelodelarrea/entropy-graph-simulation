@@ -6,6 +6,25 @@ Created on Thu Mar 18 19:43:14 2021
 @author: Enrique
 """
 
+def hours_needed(time_per_graph, num_sims_needed, num_processors=1):
+    ''' Hours needed to run a simulation scheme. 
+    
+    Parameters
+    ----------
+    time_per_graph: time in seconds needed for one graph sim
+    num_sims_needed: how many graphs we want to simulate
+    num_processors: how many processors we have available
+    
+    Returns
+    -------
+    The time in hours needed.
+    
+    '''
+    
+    hours_needed_one_proc = num_sims_needed*time_per_graph/3600
+    return hours_needed_one_proc/num_processors
+    
+
 if __name__ == '__main__':
     
     import sys
@@ -47,8 +66,17 @@ if __name__ == '__main__':
     print('Sampling from the Chesapeake sequence...')
     d_seq = [7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,
              7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
-    x, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='cvxpy')
+    x, _, _ = sample_undirected_graph(d_seq, rule='fixed', dual_method='root')
     print(x)
     g = vector2graph(x, len(d_seq))
     print(g.edges)
+    # time per graph (ipython): 7.7 seconds
+    
+    # time per graph root (ipython): 995 ms
+    
+    print('How many hours we need:')
+    num_sims = 20000
+    num_procs = 4
+    speed = 1
+    print(hours_needed(speed, num_sims, num_procs))
     

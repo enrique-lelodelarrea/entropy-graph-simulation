@@ -279,9 +279,12 @@ def sample_undirected_graph(deg_seq, rule='fixed', dual_method='cvxpy'):
         try:
             lbda = discrete_max_entr_dual(A, b, dual_method)
         except Exception as e:
-            logger.error(e)
-            logger.error('Failed to solve the dual problem!')
+            logger.warning(e)
+            logger.warning('Failed to solve the dual problem!')
             raise ValueError('Failed to solve the dual problem!')
+        if lbda is None: # when the problem is deemed unbounded
+            logger.warning('Lambda is None!')
+            raise ValueError('Lambda is None!')
         # compute exponential family parameters
         eta = lambda_to_eta(lbda, A)
         logger.debug('Eta star =')

@@ -20,6 +20,35 @@ from .aux_functions import lambda_to_eta
 # module logger
 logger = logging.getLogger(__name__)
 
+def exp_value_exponential_safe(eta, critical_val = 100):
+    ''' 
+    
+    Compute the expected value of X under the exponential distribution.
+    In the binary case, we have a Bernoulli with p = exp(eta).
+    
+    Avoids numpy overflow.
+    
+    Parameters
+    ----------
+    eta: numeric vector of natural parameters
+    critical_val: critical value to avoid overflow
+
+    Returns
+    -------
+    mean: numeric vector of means
+    
+    '''
+    
+    mask = np.logical_or(eta > critical_val, eta < -critical_val)
+    mean = np.empty_like(eta, dtype=float)
+    mean[eta < -critical_val] = 0.
+    mean[eta > critical_val] = 1.
+    e_eta = np.exp(eta[~mask]) # etas are in a reasonable range
+    temp = e_eta/(1. + e_eta) # no overflow should happen
+    mean[~mask] = temp
+    return mean
+    
+
 # TODO: round up to 0 or 1
 def exp_value_exponential(eta):
     ''' 
@@ -59,7 +88,8 @@ def eval_dual_eqs(lbda, A, b):
     
     '''
     eta = lambda_to_eta(lbda, A)
-    means = exp_value_exponential(eta)
+    means = exp_value_exponential_safe(eta) # avoid overflow (slower)
+#    means = exp_value_exponential(eta) # can overflow
     error = np.dot(A, means) - b
     return error
 
@@ -101,23 +131,21 @@ def discrete_max_entr_dual(A, b, method='cvxpy'):
         if prob.status != 'optimal':
             logger.warning('CVXPY did not converge!')
             logger.warning('Problem status is: %s' % prob.status)
-        # recover solution in numpy array
-        lbda = np.array(x.value)
+        if x.value is None: # no solution
+            lbda = None
+        else:
+            # recover solution in numpy array
+            lbda = np.array(x.value)
     # solve the dual by solving the FOC directly
     elif method == 'root':
         # solve the dual non linear system directly (faster than cvxpy but maybe less robust)
         res = root(eval_dual_eqs, np.zeros(m), args=(A, b))
         if not res.success:
-            logger.warning('Scipy root did not converge!')
-            logger.warning('Problem status is: %s' % res.message)
+            # even if it does not converge, lbda can be used
+            logger.info('Scipy root did not converge!')
+            logger.info('Problem status is: %s' % res.message)
         lbda = res.x
     return lbda
-
-
-
-if __name__ == '__main__':
-    
-    pass
     
     
 

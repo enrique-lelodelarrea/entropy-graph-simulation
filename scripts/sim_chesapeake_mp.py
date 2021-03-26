@@ -34,13 +34,16 @@ if __name__ == '__main__':
                   7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
     
     # number of cores
-    n_cores = 3
+    n_cores = 4
     
     # number of graphs per rule
-    n_sims_rule = 2 # need 500, but extra in case some fail due to num issues
+    n_sims_rule = 6000 # need 5000, but extra in case some fail due to num issues
     
     # number of graphs per batch
-    n_sims_batch = 2
+    n_sims_batch = 1000
+    
+    # solver: one of root or cvsxpy (too slow)
+    dual_solver = 'root'
     
     # rule names
     rule_names = ['fixed', 'random', 'most_uniform', 'most_singular']
@@ -69,7 +72,7 @@ if __name__ == '__main__':
                              prefix_file = 'ches',
                              random_seed = 12345,
                              subfolder = 'chesapeake',
-                             solver = 'cvxpy',
+                             solver = dual_solver,
                              num_cores = n_cores)
     end_time = time.time()
     print_elapsed_time(start_time, end_time)

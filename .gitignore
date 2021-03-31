@@ -1,6 +1,9 @@
 # Sim results
 *.npz
 .DS_Store
+*.html
+*.pdf
+*.pgf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

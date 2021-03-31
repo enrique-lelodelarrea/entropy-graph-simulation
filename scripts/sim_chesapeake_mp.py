@@ -81,3 +81,15 @@ if __name__ == '__main__':
     logs.close_handlers(logger)
     
     print('Done!')
+    
+    # It took 3.5 hours to run. (around 2 secs per graph, assuming 4 cores)
+    
+    # TODO: there is still a bug
+    '''
+    /Users/Enrique/Dropbox/Random_graph_simulation/github/entropy-graph-simulation/graphsim/max_ent_binary_case.py:44: RuntimeWarning: invalid value encountered in less
+    mean[eta < -critical_val] = 0.
+    /Users/Enrique/Dropbox/Random_graph_simulation/github/entropy-graph-simulation/graphsim/max_ent_binary_case.py:45: RuntimeWarning: invalid value encountered in greater
+    mean[eta > critical_val] = 1.
+    '''
+  
+    

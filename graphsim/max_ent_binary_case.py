@@ -38,7 +38,6 @@ def exp_value_exponential_safe(eta, critical_val = 100):
     mean: numeric vector of means
     
     '''
-    
     mask = np.logical_or(eta > critical_val, eta < -critical_val)
     mean = np.empty_like(eta, dtype=float)
     mean[eta < -critical_val] = 0.
@@ -47,9 +46,7 @@ def exp_value_exponential_safe(eta, critical_val = 100):
     temp = e_eta/(1. + e_eta) # no overflow should happen
     mean[~mask] = temp
     return mean
-    
 
-# TODO: round up to 0 or 1
 def exp_value_exponential(eta):
     ''' 
     
@@ -145,6 +142,7 @@ def discrete_max_entr_dual(A, b, method='cvxpy'):
             logger.info('Scipy root did not converge!')
             logger.info('Problem status is: %s' % res.message)
         lbda = res.x
+    logger.debug('Lambda is: %s' % lbda)
     return lbda
     
     

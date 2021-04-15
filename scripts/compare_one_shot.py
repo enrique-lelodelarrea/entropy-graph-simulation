@@ -40,6 +40,8 @@ if __name__ == '__main__':
     logger = logs.create_logger_w_c_handler('graphsim',
                                             logger_level=log_level)
     
+    from test_one_shot import connected_instance 
+    
 #    # only valid when ER uses p=0.5.
 #    
 #    # number of graphs is taken from sequence A002829 in Sloane's
@@ -63,10 +65,11 @@ if __name__ == '__main__':
 #                 [2, 2, 2, 2, 2],
 #                 [3, 2, 2, 2, 1],
 #                 [2, 1, 1, 1, 1],
-#                 [3, 2, 1, 1, 1, 1, 1],
+                 [3, 2, 1, 1, 1, 1, 1],
 #                 [3, 3, 3, 3, 3, 3, 3, 3], # takes a couple of minutes
-#                 [5, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1], # ER times out
-                 [4, 3, 1, 1, 1, 1, 1, 1, 1]
+#                 [5, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1], # ER times out with 1 million
+#                 [4, 3, 1, 1, 1, 1, 1, 1, 1], # ER times out with 1 million
+                 connected_instance(28, 1) # 4 mins for ME, ER times out
                  ]
     
 #    deg_seq = [7,8,5,1,1,2,8,10,4,2,4,5,3,6,7,3,2,7,6,1,2,9,6,1,3,4,6,3,3,3,2,4,4]
@@ -85,15 +88,37 @@ if __name__ == '__main__':
     verbose = True
     
     print('Sample size per degree sequence: %d' % num_graphs)
+    print('Max trial per iteration: %s' % max_trials)
     
     st = time.time()
     for i, deg_seq in enumerate(sequences):
-        np.random.seed(12345) # the order of sequences wont matter
+        np.random.seed(12345) # the order of sequences won't matter
         print('\nDegree sequence:')
         print(deg_seq)
+        print('Number of nodes: %s' % len(deg_seq))
+        
+        # max entropy
+        print('Maximum entropy...')
+        st = time.time()
+        try:
+            _, trials = ar_one_shot(deg_seq, graph_type='undirected',
+                                    method='max-entropy', num_samples=num_graphs,
+                                    max_num_tries=max_trials,
+                                    print_progress=verbose)
+            p_hat_max_ent.append(estimate_accept_prob(trials))
+            x_hat_max_ent.append(sum(trials)/num_graphs)
+            print('Max-entropy accept prob: %g' % p_hat_max_ent[i])
+            print('Max-entropy expected trials: %g' % x_hat_max_ent[i])
+        except SystemExit:
+            logger.error('Max entropy timed out!')
+            p_hat_max_ent.append(0)
+            x_hat_max_ent.append(0)
+        et = time.time()
+        print_elapsed_time(st, et)
+        
+        # erdos renyi
         print('Erdos-Renyi...')
         st = time.time()
-        # erdos renyi
         try:
             _, trials = ar_one_shot(deg_seq, graph_type='undirected',
                                     method='erdos-renyi',
@@ -102,41 +127,28 @@ if __name__ == '__main__':
                                     print_progress=verbose)
             p_hat_er.append(estimate_accept_prob(trials))
             x_hat_er.append(sum(trials)/num_graphs)
-            print('Erdos-Renyi accept prob: %.4f' % p_hat_er[i])
-            print('Erdos-Renyi expected trials: %.4f' % x_hat_er[i])
+            print('Erdos-Renyi accept prob: %g' % p_hat_er[i])
+            print('Erdos-Renyi expected trials: %g' % x_hat_er[i])
         except SystemExit:
             logger.error('Erdos-Renyi timed out!')
             p_hat_er.append(0)
             x_hat_er.append(0)
         et = time.time()
         print_elapsed_time(st, et)
-        # max entropy
-        print('Maximum entropy...')
-        st = time.time()
-        _, trials = ar_one_shot(deg_seq, graph_type='undirected',
-                           method='max-entropy', num_samples=num_graphs,
-                           max_num_tries=max_trials,
-                           print_progress=verbose)
-        p_hat_max_ent.append(estimate_accept_prob(trials))
-        x_hat_max_ent.append(sum(trials)/num_graphs)
-        print('Max-entropy accept prob: %.4f' % p_hat_max_ent[i])
-        print('Max-entropy expected trials: %.4f' % x_hat_max_ent[i])
-        et = time.time()
-        print_elapsed_time(st, et)
+        
+        # comparison
         try:
             temp = p_hat_max_ent[i]/p_hat_er[i] - 1
             improve.append(temp)
             print('Relative improvement: %.2f%%' % (100*improve[i]))
         except:
-            pass
+            improve.append(0)
+        
      # close handlers at the end
     logs.close_handlers(logger)
     print('Done!')
     
-    try:
-        print('Ratio')
-        p_hat_er = np.array(p_hat_er)
-        p_hat_max_ent = np.array(p_hat_max_ent)
-        print(p_hat_max_ent/p_hat_er - 1)
-    except:
-        pass
+    print('Ratio')
+    p_hat_er = np.array(p_hat_er)
+    p_hat_max_ent = np.array(p_hat_max_ent)
+    print(p_hat_max_ent/p_hat_er - 1)

@@ -216,7 +216,7 @@ def seq_algo_binary(A_0, b_0, rule='fixed', dual_method='cvxpy'):
     # number of constraints and variables
     (m, n) = A_0.shape
     assert m > 0 and n > 0
-    assert n == len(b_0)
+    assert m == len(b_0)
     # allocate output vector
     x = np.zeros(n, dtype=int)
     # initial probability estimators

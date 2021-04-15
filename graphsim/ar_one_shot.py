@@ -37,7 +37,7 @@ def ar_one_shot(degree_seq, graph_type, method, prob=None, max_num_tries=None,
     method: one of 'erdos-renyi', 'max-entropy'
     prob: probability of edge occurring, only for erdos-renyi, if None
         it computes the optimal prob for sampling from target set
-    max_num_tries: number of tries allowed
+    max_num_tries: number of tries allowed, can be set to 'inf'
     num_samples: number of graphs desired
     print_progress: print progress every 100 iterations
     
@@ -51,6 +51,9 @@ def ar_one_shot(degree_seq, graph_type, method, prob=None, max_num_tries=None,
     assert graph_type in ['undirected', 'bipartite']
     if max_num_tries is None:
         max_num_tries = MAX_TRIES
+    elif max_num_tries == 'inf':
+        max_num_tries = float('inf')
+        logger.warning('Running AR without iteration limit. Could loop endlessly!')
     # compute constraint matrix
     if graph_type == 'undirected':
         # check graphicality

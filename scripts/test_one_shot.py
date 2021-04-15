@@ -6,6 +6,14 @@ Created on Wed Mar 31 15:00:45 2021
 @author: Enrique
 """
 
+def connected_instance(size_connected, num_extra_edges=2):
+    ''' Construct a degree sequence using a connected component
+    and some isolated edges. '''
+    main_component = [size_connected - 1]*size_connected
+    extra_degs = [1]*2*num_extra_edges
+    deg_seq = main_component + extra_degs
+    return deg_seq
+
 if __name__ == '__main__':
     
     import sys
@@ -37,24 +45,36 @@ if __name__ == '__main__':
 #    deg_seq = [3, 2, 2, 2, 1]
 #    deg_seq = [2, 1, 1, 1, 1]
 #    deg_seq = [3, 2, 1, 1, 1, 1, 1]
-    deg_seq = [5, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-#    deg_seq = [5, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+#    deg_seq = [5, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+#    deg_seq = [6, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    deg_seq = connected_instance(28, 1)
 
+    max_tries = 'inf'
     
-    # erdos renyi
-    g, t = ar_one_shot(deg_seq, graph_type='undirected',
-                       method='erdos-renyi',
-                       prob=None, num_samples=1, max_num_tries=100000)
-    print('ER: Took %s trials...' % t)
-    print(g)
+    print('Degree sequence is %s' % deg_seq)
+    print('Number of nodes is %s' % len(deg_seq))
     
     # max entropy
-    g2, t2 = ar_one_shot(deg_seq, graph_type='undirected',
-                       method='max-entropy', num_samples=1, max_num_tries=100000)
-    print('ME: Took %s trials...' % t2)
-    print(g2)
+    try:
+        g2, t2 = ar_one_shot(deg_seq, graph_type='undirected',
+                           method='max-entropy', num_samples=1, max_num_tries=max_tries)
+        print('ME: Took %s trials...' % t2)
+        print(g2)
+    except SystemExit:
+        print('ME timed out with %s tries!' % max_tries)
     
+    # erdos renyi
+    try:
+        g, t = ar_one_shot(deg_seq, graph_type='undirected',
+                           method='erdos-renyi',
+                           prob=None, num_samples=1, max_num_tries=max_tries)
+        print('ER: Took %s trials...' % t)
+        print(g)
+    except SystemExit:
+        print('ER timed out with %s tries!' % max_tries)
     
     
      # close handlers at the end
     logs.close_handlers(logger)
+    
+    print('Done!')
